@@ -95,6 +95,7 @@ export const messages = {
     "form.err.agree": "请先确认取消与退款规则",
     "form.err.session": "请选择场次",
     "form.err.soldOut": "该场次名额不足，请选择其他场次",
+    "form.err.blocked": "该邮箱无法预约，请联系客服咨询",
     "form.err.closed": "该场次已停止报名",
     "form.err.generic": "提交失败，请稍后重试",
 
@@ -233,6 +234,7 @@ export const messages = {
     "form.err.agree": "Please accept the cancellation policy",
     "form.err.session": "Please choose a session",
     "form.err.soldOut": "Not enough seats left — please choose another session",
+    "form.err.blocked": "This email cannot book right now — please contact us",
     "form.err.closed": "This session is closed",
     "form.err.generic": "Something went wrong, please try again",
 

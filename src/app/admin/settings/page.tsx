@@ -8,6 +8,7 @@ import { normalizeLocale } from "@/i18n/messages";
 import { toShanghaiInput } from "@/lib/format";
 import { allSettings } from "@/lib/settings";
 import { SettingsForm } from "../SettingsForm";
+import { ChangePasswordForm } from "../ChangePasswordForm";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,9 @@ export default async function SettingsPage() {
             cutoffHours: Number(s.CANCEL_CUTOFF_HOURS ?? 24),
           }}
         />
+
+        <h2 className="text-[15px] font-bold">{zh ? "账号安全" : "Account security"}</h2>
+        <ChangePasswordForm />
 
         <div className="card overflow-hidden">
           <div className="border-b border-line px-4 py-3 text-[15px] font-bold">

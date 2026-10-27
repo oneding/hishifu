@@ -5,6 +5,7 @@ import {
   classSessions,
   courseTranslations,
   courses,
+  customers,
   payments,
   venueTranslations,
   venues,
@@ -95,7 +96,48 @@ export interface CreateBookingInput {
 
 export type CreateBookingResult =
   | { ok: true; booking: BookingRow; accessToken: string; duplicated: boolean }
-  | { ok: false; error: "session_not_found" | "closed" | "sold_out" | "invalid_qty" };
+  | { ok: false; error: "session_not_found" | "closed" | "sold_out" | "invalid_qty" | "blocked" };
+
+/**
+ * 下单后同步客户档案（以邮箱为唯一键）。
+ * 仅补录姓名/语言，不覆盖已有姓名；失败不影响下单主流程。
+ */
+export async function syncCustomer(email: string, name: string, locale: Locale): Promise<void> {
+  const key = email.trim().toLowerCase();
+  if (!key) return;
+  try {
+    const db = await getDb();
+    const found = await db
+      .select({ id: customers.id, name: customers.name })
+      .from(customers)
+      .where(eq(customers.email, key))
+      .limit(1);
+    if (!found[0]) {
+      await db.insert(customers).values({ email: key, name: name.trim(), locale });
+    } else if (!found[0].name && name.trim()) {
+      await db.update(customers).set({ name: name.trim(), updatedAt: new Date() }).where(eq(customers.id, found[0].id));
+    }
+  } catch {
+    /* 客户档案写入失败不影响下单 */
+  }
+}
+
+/** 客户是否被列入黑名单 */
+export async function isCustomerBlocked(email: string): Promise<boolean> {
+  const key = email.trim().toLowerCase();
+  if (!key) return false;
+  try {
+    const db = await getDb();
+    const row = await db
+      .select({ blocked: customers.isBlocked })
+      .from(customers)
+      .where(eq(customers.email, key))
+      .limit(1);
+    return Boolean(row[0]?.blocked);
+  } catch {
+    return false;
+  }
+}
 
 /**
  * 创建待付款订单并临时锁位。
@@ -122,6 +164,9 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   const session = await getSessionRow(input.sessionId);
   if (!session) return { ok: false, error: "session_not_found" };
   if (session.status !== "open") return { ok: false, error: "closed" };
+
+  // 黑名单客户禁止下单
+  if (await isCustomerBlocked(input.email)) return { ok: false, error: "blocked" };
 
   const holdMin = await holdMinutes();
   const accessToken = randomToken(32);
@@ -168,6 +213,8 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
         .returning();
       return inserted[0] as BookingRow;
     });
+
+    void syncCustomer(result.customerEmail, result.customerName, result.locale as Locale).catch(() => {});
 
     return { ok: true, booking: result, accessToken, duplicated: false };
   } catch (e) {

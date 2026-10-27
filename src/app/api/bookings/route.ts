@@ -54,7 +54,9 @@ export async function POST(req: Request) {
   });
 
   if (!res.ok) {
-    return NextResponse.json({ ok: false, error: res.error === "sold_out" ? "soldOut" : "generic" }, { status: 409 });
+    const code =
+      res.error === "sold_out" ? "soldOut" : res.error === "blocked" ? "blocked" : res.error === "closed" ? "closed" : "generic";
+    return NextResponse.json({ ok: false, error: code }, { status: res.error === "blocked" ? 403 : 409 });
   }
 
   return NextResponse.json({

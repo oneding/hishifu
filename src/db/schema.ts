@@ -78,10 +78,36 @@ export const emailTokens = pgTable(
 /* ==========================================================================
  * 课程 / 场地 / 场次
  * ========================================================================== */
+/**
+ * 客户（前台下单用户）档案。
+ * 以邮箱为唯一键；下单时自动 upsert（见 lib/booking.ts → syncCustomer）。
+ * isBlocked = true 时禁止再次下单（黑名单）。
+ */
+export const customers = pgTable(
+  "customers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    name: text("name").notNull().default(""),
+    phone: text("phone").notNull().default(""),
+    locale: text("locale").notNull().default("zh"), // 首次下单时的界面语言
+    note: text("note").notNull().default(""), // 运营备注
+    isBlocked: boolean("is_blocked").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("customers_email_unq").on(t.email),
+    index("customers_blocked_idx").on(t.isBlocked),
+  ],
+);
+
 export const courses = pgTable("courses", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: text("slug").notNull(),
-  status: text("status").notNull().default("published"), // draft | published
+  status: text("status").notNull().default("published"), // draft | published | archived
+  /** 产品标价（新建场次时的默认价格；实际成交价以场次为准） */
+  basePriceCents: integer("base_price_cents").notNull().default(0),
   durationMinutes: integer("duration_minutes").notNull().default(90),
   /** 实际授课语言，与「页面语言」分开标注 */
   taughtLanguages: jsonb("taught_languages").$type<string[]>().notNull().default(sql`'[]'::jsonb`),

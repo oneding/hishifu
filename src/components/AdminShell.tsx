@@ -7,8 +7,11 @@ import type { Locale } from "@/i18n/messages";
 
 const NAV = [
   { href: "/admin", key: "dashboard" },
+  { href: "/admin/products", key: "products" },
   { href: "/admin/sessions", key: "sessions" },
   { href: "/admin/orders", key: "orders" },
+  { href: "/admin/transactions", key: "transactions" },
+  { href: "/admin/users", key: "users" },
   { href: "/admin/emails", key: "emails" },
   { href: "/admin/course", key: "course" },
   { href: "/admin/settings", key: "settings" },
@@ -16,10 +19,13 @@ const NAV = [
 
 const LABEL: Record<string, { zh: string; en: string }> = {
   dashboard: { zh: "概览", en: "Overview" },
+  products: { zh: "产品", en: "Products" },
   sessions: { zh: "场次与名额", en: "Sessions" },
   orders: { zh: "订单", en: "Orders" },
+  transactions: { zh: "交易", en: "Transactions" },
+  users: { zh: "用户", en: "Users" },
   emails: { zh: "邮件", en: "Emails" },
-  course: { zh: "课程", en: "Class" },
+  course: { zh: "详情内容", en: "Page copy" },
   settings: { zh: "设置", en: "Settings" },
   logout: { zh: "退出登录", en: "Sign out" },
   admin: { zh: "管理后台", en: "Admin console" },

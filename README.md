@@ -46,6 +46,8 @@ npm run db:seed          # 只灌演示数据
 npm run db:reset         # 清空数据（保留表结构），需加 --yes
 npm run db:check         # 目标库连通自检
 npm run db:migrate:to    # 把本地库迁移到外部 Postgres
+npm run db:apply -- drizzle/0001_xxx.sql   # 应用单个迁移（幂等）
+npm run admin:create     # 建/改后台管理员（ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME / ADMIN_ROLE）
 
 python scripts/acceptance.py          # 端到端验收（21 项）
 python scripts/race.py <url> <sid> 20 # 并发抢位压测
@@ -81,14 +83,36 @@ python scripts/race.py <url> <sid> 20 # 并发抢位压测
 
 ---
 
-## 六、切换到自有云服务器的私有 Supabase
+## 六、管理后台（`/admin`）
+
+登录入口 `/admin/login`（支持密码登录 / 邮箱验证码登录 / 找回密码）。
+
+| 路由 | 作用 |
+|---|---|
+| `/admin` | 概览：已确认、待付款、待退款、邮件异常 + 客户数、交易笔数、GMV，以及各模块快捷入口 |
+| `/admin/products` | **产品管理**：新建/编辑产品（中英双语、标价、时长、授课语言、封面、上下架），并展示场次数、已确认人数、成交额 |
+| `/admin/sessions` | 场次与名额：开课时间、价格、容量、锁位情况 |
+| `/admin/orders` | 订单：筛选、取消、重发邮件、标记退款 |
+| `/admin/transactions` | **交易查询**：按时间/状态/关键词查支付流水，汇总成功笔数、成功金额、失败与放弃、已退款金额 |
+| `/admin/users` | **用户管理**：客户（以下单邮箱为唯一键，含订单数/已付/累计消费/最近下单，可拉黑、编辑备注）+ 管理员账号（启用停用、角色、新增） |
+| `/admin/emails` | 邮件日志与重发 |
+| `/admin/course` | 前台详情页文案与场地（中英双语） |
+| `/admin/settings` | 锁位时长、取消时限、联系邮箱、**修改当前账号密码**、操作审计 |
+
+- **黑名单**：客户被拉黑后，该邮箱在下单接口直接被拒（`createBooking` 返回 `blocked`，HTTP 403）。
+- **客户建档**：下单成功后按邮箱自动建档（`customers` 表），历史订单邮箱即使未建档也会出现在用户列表。
+- **权限**：任何已启用（`is_active`）的管理员均可访问全部后台；角色 `owner/admin` 仅作标记，不影响可见范围。
+
+---
+
+## 七、切换到自有云服务器的私有 Supabase
 
 见 `docs/SELFHOST-SUPABASE.md`（含部署方案、连接串、SSL 处理、迁移步骤、生产注意事项）。
 最简路径：把 `DATABASE_URL` 指向服务器上的 Postgres，重启即可；后台概览页会显示「外部 Postgres」。
 
 ---
 
-## 七、版本与发布
+## 八、版本与发布
 
 代码托管在 **https://github.com/oneding/hishifu**，每次更新一条命令：
 
@@ -116,7 +140,7 @@ v1.0.2 · a1b2c3d · 2026-10-27 16:53
 
 ---
 
-## 八、V1.0 已知限制
+## 九、V1.0 已知限制
 
 1. **支付为模拟**：无真实收款。接真实渠道时只需替换 `src/app/api/payments/mock/*`，
    保留"只认服务端通知"的约定即可，`src/lib/booking.ts` 的 `applyPaymentNotification()` 不用改。

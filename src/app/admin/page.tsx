@@ -2,7 +2,7 @@ import { and, eq, ne, sql } from "drizzle-orm";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { getDb } from "@/db";
-import { bookings, classSessions, emailLogs } from "@/db/schema";
+import { bookings, classSessions, customers, emailLogs, payments } from "@/db/schema";
 import { AdminShell } from "@/components/AdminShell";
 import { ensureAdmin } from "@/lib/admin-guard";
 import { normalizeLocale } from "@/i18n/messages";
@@ -37,6 +37,16 @@ export default async function AdminHome() {
     .from(emailLogs)
     .where(ne(emailLogs.status, "sent"));
 
+  const [{ customerCount } = { customerCount: 0 }] = await db
+    .select({ customerCount: sql<number>`count(*)::int` })
+    .from(customers);
+  const [{ gmv } = { gmv: 0 }] = await db
+    .select({ gmv: sql<number>`coalesce(sum(${payments.amountCents}) filter (where ${payments.status} = 'succeeded'), 0)::int` })
+    .from(payments);
+  const [{ txCount } = { txCount: 0 }] = await db
+    .select({ txCount: sql<number>`count(*)::int` })
+    .from(payments);
+
   const zh = locale === "zh";
 
   const cards = [
@@ -44,6 +54,16 @@ export default async function AdminHome() {
     { label: zh ? "待付款" : "Awaiting payment", value: pending, href: "/admin/orders?status=pending_payment" },
     { label: zh ? "待处理退款" : "Refunds pending", value: refundPending, href: "/admin/orders?refund=requested" },
     { label: zh ? "邮件异常" : "Email issues", value: mailFailed, href: "/admin/emails" },
+    { label: zh ? "客户数" : "Customers", value: customerCount, href: "/admin/users" },
+    { label: zh ? "交易笔数" : "Transactions", value: txCount, href: "/admin/transactions" },
+    { label: zh ? "成交金额" : "GMV", value: `${(gmv / 100).toFixed(0)}`, href: "/admin/transactions?status=succeeded" },
+  ];
+
+  const quick = [
+    { href: "/admin/products", zh: "产品管理", en: "Products" },
+    { href: "/admin/users", zh: "用户管理", en: "Users" },
+    { href: "/admin/transactions", zh: "交易查询", en: "Transactions" },
+    { href: "/admin/sessions", zh: "场次与名额", en: "Sessions" },
   ];
 
   return (
@@ -64,6 +84,14 @@ export default async function AdminHome() {
             <Link key={c.label} href={c.href} className="card p-4 transition hover:border-accent/40">
               <div className="text-[12px] text-muted">{c.label}</div>
               <div className="mt-1 text-[26px] font-extrabold">{c.value}</div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {quick.map((q) => (
+            <Link key={q.href} href={q.href} className="btn btn-ghost !py-2 !text-[13px]">
+              {zh ? q.zh : q.en} →
             </Link>
           ))}
         </div>
