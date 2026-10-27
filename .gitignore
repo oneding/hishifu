@@ -20,8 +20,12 @@ coverage
 
 # 本地调试产物
 .next.bak.*
+.next.devbak.*
 tmp_*
 scripts/ops/*.log
+
+# 编辑器/工作区数据（含会话记忆，不入库）
+.workbuddy
 
 # 部署产物与线上环境变量（含密钥，禁止入库）
 *.tar.gz
