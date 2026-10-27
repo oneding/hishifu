@@ -27,7 +27,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OWNER = os.environ.get("GH_OWNER", "oneding")
 REPO = os.environ.get("GH_REPO", "hishifu")
 BRANCH = os.environ.get("GH_BRANCH", "main")
-PROXY = os.environ.get("PROXY", "http://127.0.0.1:7890")
+# 代理优先取 PROXY，其次沿用系统环境（编辑器环境会自带一个可用代理），最后才是常见的 7890
+PROXY = (
+    os.environ.get("PROXY")
+    or os.environ.get("https_proxy")
+    or os.environ.get("HTTPS_PROXY")
+    or os.environ.get("http_proxy")
+    or os.environ.get("HTTP_PROXY")
+    or "http://127.0.0.1:7890"
+)
 
 
 def read_github_token() -> str:
@@ -79,6 +87,98 @@ def run(args: list[str], check=True, capture=True) -> subprocess.CompletedProces
         args, cwd=ROOT, env=env, check=check,
         capture_output=capture, text=True, encoding="utf-8", errors="replace",
     )
+
+
+def _state_path() -> str:
+    return os.path.join(ROOT, ".git", "gh-sync-state")
+
+
+def read_state() -> str:
+    try:
+        return open(_state_path(), encoding="utf-8").read().strip()
+    except OSError:
+        return ""
+
+
+def write_state(sha: str) -> None:
+    try:
+        open(_state_path(), "w", encoding="utf-8").write(sha)
+    except OSError:
+        pass
+
+
+def api_push(token: str, message: str, version: str, tag: bool) -> bool:
+    """git 协议被墙/代理不放行时的备用通道：用 GitHub Git Data API 提交。
+
+    第一次全量上传，之后按上次同步的 commit 做增量。
+    """
+    base = f"/repos/{OWNER}/{REPO}"
+    st, ref = gh_api("GET", f"{base}/git/ref/heads/{BRANCH}", token)
+    if st != 200:
+        print(f"[sync] 读取分支失败 {st}: {ref.get('message')}", file=sys.stderr)
+        return False
+    head_sha = ref["object"]["sha"]
+
+    last = read_state()
+    if last:
+        d = run(["git", "diff", "--name-status", last, "HEAD"], check=False)
+        entries = [l.split("\t") for l in (d.stdout or "").splitlines() if "\t" in l]
+        if not entries:
+            print("[sync] 没有需要同步的改动")
+            return True
+        print(f"[sync] 增量同步 {len(entries)} 个文件")
+    else:
+        d = run(["git", "ls-files"], check=False)
+        entries = [["M", p] for p in (d.stdout or "").splitlines() if p.strip()]
+        print(f"[sync] 首次全量同步 {len(entries)} 个文件")
+
+    st, commit_info = gh_api("GET", f"{base}/git/commits/{head_sha}", token)
+    base_tree = commit_info.get("tree", {}).get("sha", "") if st == 200 else ""
+
+    import base64
+
+    tree = []
+    for status, *paths in entries:
+        rel = paths[0].strip()
+        full = os.path.join(ROOT, *rel.split("/"))
+        if status.startswith("D") or not os.path.exists(full):
+            tree.append({"path": rel, "mode": "100644", "type": "blob", "sha": None})
+            continue
+        data = open(full, "rb").read()
+        st2, blob = gh_api("POST", f"{base}/git/blobs", token, {
+            "content": base64.b64encode(data).decode(), "encoding": "base64",
+        })
+        if st2 not in (200, 201):
+            print(f"[sync] 上传失败 {rel}: {blob.get('message')}", file=sys.stderr)
+            return False
+        tree.append({"path": rel, "mode": "100644", "type": "blob", "sha": blob["sha"]})
+
+    payload = {"tree": tree}
+    if base_tree:
+        payload["base_tree"] = base_tree
+    st, new_tree = gh_api("POST", f"{base}/git/trees", token, payload)
+    if st not in (200, 201):
+        print(f"[sync] 创建 tree 失败 {st}: {new_tree.get('message')}", file=sys.stderr)
+        return False
+
+    st, new_commit = gh_api("POST", f"{base}/git/commits", token, {
+        "message": message, "tree": new_tree["sha"], "parents": [head_sha],
+    })
+    if st not in (200, 201):
+        print(f"[sync] 创建 commit 失败 {st}: {new_commit.get('message')}", file=sys.stderr)
+        return False
+
+    st, res = gh_api("PATCH", f"{base}/git/refs/heads/{BRANCH}", token, {"sha": new_commit["sha"]})
+    if st != 200:
+        print(f"[sync] 更新分支失败 {st}: {res.get('message')}", file=sys.stderr)
+        return False
+
+    print(f"[sync] 已推送 {new_commit['sha'][:7]}")
+    write_state(run(["git", "rev-parse", "HEAD"], check=False).stdout.strip())
+
+    if tag:
+        gh_api("POST", f"{base}/git/refs", token, {"ref": f"refs/tags/v{version}", "sha": new_commit["sha"]})
+    return True
 
 
 def git_config_proxy() -> list[str]:
@@ -181,17 +281,21 @@ def main() -> int:
         last = re.sub(r"https://[^@\s]+@github\.com", "https://***@github.com", out)
         if p.returncode == 0:
             break
-        print(f"  {last}")
-    else:
-        print("[sync] 推送失败（已重试 3 次）。常见原因：代理抖动，稍后重跑本脚本即可", file=sys.stderr)
+    if p.returncode != 0:
+        # git 协议走不通（常见于代理只放行 api.github.com）→ 改用 API 提交
+        print("[sync] git 协议不可达，改用 GitHub API 提交…")
+        if api_push(token, full, version, not args.no_tag and args.bump != "none"):
+            print(f"[sync] ✅ 完成 v{version} → https://github.com/{OWNER}/{REPO}")
+            return 0
+        print("[sync] 两种通道都失败，请检查网络/代理或稍后重试", file=sys.stderr)
         return 1
 
     if last:
         print(last)
-    # tag 单独推（失败不致命）
     if not args.no_tag and args.bump != "none":
         run(["git"] + git_config_proxy() + ["push", url, f"v{version}"], check=False)
     run(["git", "branch", f"--set-upstream-to=origin/{BRANCH}", BRANCH], check=False)
+    write_state(run(["git", "rev-parse", "HEAD"], check=False).stdout.strip())
 
     print(f"[sync] ✅ 完成 v{version} → https://github.com/{OWNER}/{REPO}")
     return 0
