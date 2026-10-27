@@ -1,0 +1,28 @@
+node_modules
+.next
+out
+build
+dist
+.DS_Store
+*.log
+npm-debug.log*
+.env
+.env.local
+.env*.local
+.data
+_pgdata
+next-env.d.ts
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+coverage
+.vscode
+.idea
+
+# 本地调试产物
+.next.bak.*
+tmp_*
+scripts/ops/*.log
+
+# 部署产物与线上环境变量（含密钥，禁止入库）
+*.tar.gz
+scripts/ops/.env.production

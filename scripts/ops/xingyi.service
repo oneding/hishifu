@@ -1,0 +1,33 @@
+[Unit]
+Description=Xingyi Booking (Next.js standalone)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/xingyi
+EnvironmentFile=/srv/xingyi/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+# 用 /usr/local/bin/node（Node 20，Tailwind v4 要求 >= 20），不是系统自带的 /usr/bin/node 18
+ExecStart=/usr/local/bin/node /srv/xingyi/server.js
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=20
+
+# 最小权限加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/srv/xingyi
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=xingyi
+
+[Install]
+WantedBy=multi-user.target
