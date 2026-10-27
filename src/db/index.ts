@@ -51,13 +51,39 @@ async function createDb(): Promise<DB> {
     return drizzle(pool, { schema }) as DB;
   }
 
+  // Serverless（Vercel / Lambda）没有可写磁盘，也没有常驻进程，
+  // 内置 PGlite 在这里必然失败。直接给出可操作的报错，而不是让人看 ENOENT。
+  if (isServerless()) {
+    throw new Error(
+      "[db] 未配置 DATABASE_URL：Serverless 环境不支持内置 PGlite。" +
+        "请在 Vercel → Settings → Environment Variables 配置 DATABASE_URL（公网可达的 Postgres），然后重新部署。",
+    );
+  }
+
   const { PGlite } = await import("@electric-sql/pglite");
   const { drizzle } = await import("drizzle-orm/pglite");
   const dataDir = "./.data/pg";
   // PGlite 的 nodefs 不会递归建目录，先确保父目录存在
-  (await import("node:fs")).mkdirSync("./.data", { recursive: true });
+  try {
+    (await import("node:fs")).mkdirSync("./.data", { recursive: true });
+  } catch (e) {
+    throw new Error(
+      `[db] 无法创建本地数据目录 ./.data（${(e as Error)?.message}）。` +
+        "当前环境不可写：请配置 DATABASE_URL 改用外部 Postgres。",
+    );
+  }
   const client = new PGlite(dataDir);
   return drizzle(client, { schema }) as unknown as DB;
+}
+
+/** 是否跑在 Serverless / 只读文件系统环境 */
+function isServerless(): boolean {
+  return Boolean(
+    process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.NETLIFY ||
+      process.env.CF_PAGES,
+  );
 }
 
 const globalForDb = globalThis as unknown as { __dbPromise?: Promise<DB> };

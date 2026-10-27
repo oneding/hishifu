@@ -88,7 +88,35 @@ python scripts/race.py <url> <sid> 20 # 并发抢位压测
 
 ---
 
-## 七、V1.0 已知限制
+## 七、版本与发布
+
+代码托管在 **https://github.com/oneding/hishifu**，每次更新一条命令：
+
+```bash
+python scripts/ops/github_sync.py -m "本次改动说明"      # 自动 bump patch：1.0.1 → 1.0.2
+python scripts/ops/github_sync.py --bump minor -m "新功能" # 次版本递增
+python scripts/ops/github_sync.py --bump none -m "小改"    # 不改版本号
+```
+
+脚本会：递增 `package.json` 版本号 → 提交 → 打 tag → 推送。
+（git 协议不通时会自动改用 GitHub API 提交，代理抖动会重试。）
+
+版本号在**每个页面的页脚**展示，形如：
+
+```
+v1.0.2 · a1b2c3d · 2026-10-27 16:53
+```
+
+`a1b2c3d` 是构建时对应的 commit，用它就能确认线上跑的是哪份代码。
+
+| 发布目标 | 方式 |
+|---|---|
+| 自有服务器 | `SSH_PW='...' ./scripts/ops/deploy.sh`（见 `docs/SELFHOST-SUPABASE.md`） |
+| Vercel | 从 GitHub 导入后手动 Deploy（见 `docs/VERCEL.md`） |
+
+---
+
+## 八、V1.0 已知限制
 
 1. **支付为模拟**：无真实收款。接真实渠道时只需替换 `src/app/api/payments/mock/*`，
    保留"只认服务端通知"的约定即可，`src/lib/booking.ts` 的 `applyPaymentNotification()` 不用改。
