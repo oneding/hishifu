@@ -20,6 +20,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -70,13 +71,22 @@ def gh_api(method: str, path: str, token: str, body: dict | None = None):
         host, _, port = PROXY.replace("http://", "").replace("https://", "").partition(":")
         req.set_proxy(host, "http")
         req.set_proxy(host, "https")
-    try:
-        with urllib.request.urlopen(req, timeout=30) as r:
-            return r.status, _json(r.read().decode("utf-8", "replace"))
-    except urllib.error.HTTPError as e:
-        return e.code, _json(e.read().decode("utf-8", "replace"))
-    except Exception as e:  # noqa: BLE001
-        return 0, {"message": f"{type(e).__name__}: {e}"}
+    # 代理会间歇性 502，这里做有限重试 + 退避；4xx（除 429）不重试
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return r.status, _json(r.read().decode("utf-8", "replace"))
+        except urllib.error.HTTPError as e:
+            body = _json(e.read().decode("utf-8", "replace"))
+            if e.code < 500 and e.code != 429:
+                return e.code, body
+            if attempt == 2:
+                return e.code, body
+        except Exception as e:  # noqa: BLE001
+            if attempt == 2:
+                return 0, {"message": f"{type(e).__name__}: {e}"}
+        time.sleep(1.5 * (attempt + 1))
+    return 0, {"message": "unknown"}
 
 
 def run(args: list[str], check=True, capture=True) -> subprocess.CompletedProcess:
