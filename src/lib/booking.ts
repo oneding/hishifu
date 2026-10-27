@@ -243,6 +243,8 @@ export interface PaymentNotifyInput {
   outcome: PaymentOutcome;
   amountCents: number;
   currency: string;
+  /** 渠道标识：mock | stripe | paypal | wechat */
+  provider?: string;
 }
 
 export type PaymentNotifyResult =
@@ -281,7 +283,7 @@ export async function applyPaymentNotification(
   const updated = await db.transaction(async (tx) => {
     await (tx as any).insert(payments).values({
       bookingId: booking.id,
-      provider: "mock",
+      provider: input.provider ?? "mock",
       providerRef: input.providerRef,
       eventId: input.eventId,
       status: input.outcome,

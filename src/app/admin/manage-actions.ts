@@ -26,6 +26,26 @@ async function clientIp() {
   return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "";
 }
 
+/* ============================== 支付渠道开关 ============================== */
+
+export async function togglePaymentChannelAction(fd: FormData) {
+  const admin = await requireAdmin();
+  const id = str(fd, "id") as "stripe" | "paypal" | "wechat" | "mock";
+  const enabled = str(fd, "enabled") === "1";
+  if (!["stripe", "paypal", "wechat", "mock"].includes(id)) return;
+  const { setProviderEnabled } = await import("@/lib/payments");
+  await setProviderEnabled(id, enabled);
+  await audit({
+    adminId: admin.id,
+    adminEmail: admin.email,
+    action: enabled ? "payment.enable" : "payment.disable",
+    targetType: "payment_channel",
+    targetId: id,
+    ip: await clientIp(),
+  });
+  revalidatePath("/admin/payments");
+}
+
 /** 当前登录管理员修改自己的密码 */
 export async function changeMyPasswordAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const admin = await requireAdmin();

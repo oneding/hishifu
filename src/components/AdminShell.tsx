@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin/users", key: "users" },
   { href: "/admin/emails", key: "emails" },
   { href: "/admin/course", key: "course" },
+  { href: "/admin/payments", key: "payments" },
   { href: "/admin/settings", key: "settings" },
 ];
 
@@ -26,6 +27,7 @@ const LABEL: Record<string, { zh: string; en: string }> = {
   users: { zh: "用户", en: "Users" },
   emails: { zh: "邮件", en: "Emails" },
   course: { zh: "详情内容", en: "Page copy" },
+  payments: { zh: "支付渠道", en: "Payments" },
   settings: { zh: "设置", en: "Settings" },
   logout: { zh: "退出登录", en: "Sign out" },
   admin: { zh: "管理后台", en: "Admin console" },
