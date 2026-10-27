@@ -163,17 +163,35 @@ def main() -> int:
     if not args.no_tag and args.bump != "none":
         run(["git", "tag", "-f", f"v{version}"], check=False)
 
-    # 5) 推送（token 只出现在命令行与内存，不写入 .git/config）
+    # 5) 推送
+    #    remote 只存「不含 token」的地址，token 仅出现在本次命令行，避免写进 .git/config
+    safe_url = f"https://github.com/{OWNER}/{REPO}.git"
+    remotes = (run(["git", "remote"], check=False).stdout or "").split()
+    if "origin" in remotes:
+        run(["git", "remote", "set-url", "origin", safe_url], check=False)
+    else:
+        run(["git", "remote", "add", "origin", safe_url], check=False)
+
     url = f"https://{token}@github.com/{OWNER}/{REPO}.git"
-    print(f"[sync] 推送到 {OWNER}/{REPO}:{BRANCH} …")
-    p = run(["git"] + git_config_proxy() + ["push", "-u", "--follow-tags", url, f"{BRANCH}:{BRANCH}"], check=False)
-    out = (p.stdout or "") + (p.stderr or "")
-    # 输出里可能带 token，统一脱敏
-    safe = re.sub(r"https://[^@\s]+@github\.com", "https://***@github.com", out)
-    print(safe.strip())
-    if p.returncode != 0:
-        print("[sync] 推送失败（上面是 git 原始输出）", file=sys.stderr)
-        return p.returncode
+    last = ""
+    for attempt in range(1, 4):
+        print(f"[sync] 推送到 {OWNER}/{REPO}:{BRANCH}（第 {attempt} 次）…")
+        p = run(["git"] + git_config_proxy() + ["push", url, f"{BRANCH}:{BRANCH}"], check=False)
+        out = ((p.stdout or "") + (p.stderr or "")).strip()
+        last = re.sub(r"https://[^@\s]+@github\.com", "https://***@github.com", out)
+        if p.returncode == 0:
+            break
+        print(f"  {last}")
+    else:
+        print("[sync] 推送失败（已重试 3 次）。常见原因：代理抖动，稍后重跑本脚本即可", file=sys.stderr)
+        return 1
+
+    if last:
+        print(last)
+    # tag 单独推（失败不致命）
+    if not args.no_tag and args.bump != "none":
+        run(["git"] + git_config_proxy() + ["push", url, f"v{version}"], check=False)
+    run(["git", "branch", f"--set-upstream-to=origin/{BRANCH}", BRANCH], check=False)
 
     print(f"[sync] ✅ 完成 v{version} → https://github.com/{OWNER}/{REPO}")
     return 0
