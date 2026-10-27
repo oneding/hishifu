@@ -26,7 +26,9 @@ echo "▶ 3/5 解压"
 python scripts/ops/ssh_exec.py "tar -xzf /tmp/xingyi-src.tar.gz -C /srv/xingyi-src"
 
 echo "▶ 4/5 服务器构建（约 1-2 分钟）"
-python scripts/ops/ssh_exec.py "cd /srv/xingyi-src && NEXT_PUBLIC_SITE_URL=$SITE_URL npm run build" \
+# 服务器源码目录没有 .git，把本机 commit 传过去，页脚才能显示 v1.0.2 · a1b2c3d
+APP_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo '')"
+python scripts/ops/ssh_exec.py "cd /srv/xingyi-src && APP_COMMIT=$APP_COMMIT NEXT_PUBLIC_SITE_URL=$SITE_URL npm run build" \
   | tail -5
 
 echo "▶ 5/5 部署并重启"

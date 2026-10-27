@@ -15,6 +15,9 @@ const pkg = JSON.parse(readFileSync(path.resolve(__dirname, "package.json"), "ut
 };
 
 function gitShortHash(): string {
+  // 服务器上从 tar 包构建时没有 .git，由部署脚本通过 APP_COMMIT 传入
+  const fromEnv = (process.env.APP_COMMIT ?? "").trim();
+  if (fromEnv) return fromEnv;
   try {
     return execSync("git rev-parse --short HEAD", { stdio: ["ignore", "pipe", "ignore"] })
       .toString()
