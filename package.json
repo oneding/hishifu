@@ -1,6 +1,6 @@
 {
   "name": "xingyi-booking",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "上海零基础形意拳体验课预约网站 V1.0（中英双语 / 模拟支付 / 邮件确认 / 管理后台）",
   "scripts": {
