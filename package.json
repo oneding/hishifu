@@ -1,6 +1,6 @@
 {
   "name": "xingyi-booking",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "private": true,
   "description": "上海零基础形意拳体验课预约网站 V1.0（中英双语 / 模拟支付 / 邮件确认 / 管理后台）",
   "scripts": {
@@ -17,6 +17,7 @@
     "db:migrate:to": "tsx --env-file=.env.local scripts/migrate-to.ts",
     "db:check": "tsx scripts/check-db.ts",
     "admin:create": "tsx scripts/create-admin.ts",
+    "venue:geo": "tsx scripts/set-venue-geo.ts",
     "setup": "tsx scripts/migrate.ts && tsx scripts/seed.ts"
   },
   "dependencies": {

@@ -34,6 +34,8 @@ export default async function CourseAdminPage() {
     taughtLanguages: (course?.taughtLanguages as string[] | null)?.join(",") ?? "zh,en",
     venueId: venue?.id ?? "",
     mapUrl: venue?.mapUrl ?? "",
+    lng: venue?.lng != null ? String(venue.lng) : "",
+    lat: venue?.lat != null ? String(venue.lat) : "",
     zh: {
       title: String(pick("zh", "title")),
       summary: String(pick("zh", "summary")),

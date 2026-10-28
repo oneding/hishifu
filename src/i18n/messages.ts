@@ -153,7 +153,7 @@ export const messages = {
     "order.datetime": "上课时间",
     "order.qty": "人数",
     "order.venue": "地点",
-    "order.map": "查看地图",
+    "order.map": "高德地图查看",
     "order.directions": "到店指引",
     "order.amount": "金额",
     "order.bookingStatus": "预约状态",

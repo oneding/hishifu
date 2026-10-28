@@ -1,0 +1,219 @@
+<!doctype html>
+<!--
+  方向 1 · 吕敬人（Lü Jingren，书籍设计）
+  借的：版心呼吸——版心上提、天头小、地脚大、不居中；切口一侧窄旁注栏；
+        暖纸底 #F4EFE4 + 墨黑；朱砂红全站只用一处（"报名"印）；行距 2 以上；书眉极小。
+  form 来自内容：形意拳讲「心意诚于中，肢体形于外」——页面就该是一本书的呼吸节奏，慢，不催。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>上海零基础形意拳体验课</title>
+<style>
+  :root{
+    --paper:#EDE3CB; --ink:#1F1B16; --soft:#5C554A; --faint:#6E6656;
+    --cinnabar:#B23A2E; --line:#DCD3C2;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",SimSun,"STSong",serif;
+    --sans:"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:2;
+       -webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .marginalia{max-width:1060px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:1fr 150px;gap:44px}
+  .spine{border-left:1px solid var(--line);padding-left:18px;font-family:var(--sans);font-size:12px;
+         line-height:2.1;color:var(--faint)}
+  .spine b{display:block;color:var(--soft);font-weight:600;margin-bottom:4px}
+
+  /* ---- 书眉 ---- */
+  header{padding:26px 0 0}
+  header .marginalia{align-items:start}
+  .head{font-family:var(--sans);font-size:12px;letter-spacing:.5em;color:var(--faint)}
+  .brandline{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);
+             padding-bottom:10px}
+  .brandline .nav{display:flex;gap:22px;font-family:var(--sans);font-size:13px}
+  .brandline .nav a{color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:2px}
+  .brandline .nav a:hover{border-bottom-color:var(--ink)}
+
+  /* ---- 扉页 ---- */
+  .titlepage{padding:34px 0 56px}
+  h1{font-size:clamp(34px,5vw,52px);font-weight:700;line-height:1.6;letter-spacing:.06em;margin-top:6px}
+  .rule{width:30px;height:2px;background:var(--ink);margin:18px 0}
+  .lede{max-width:520px;color:var(--soft)}
+  .fig{margin-top:26px}
+  .fig-cap{font-family:var(--sans);font-size:12px;color:var(--faint);margin-top:6px;letter-spacing:.1em}
+
+  /* ---- 章节 ---- */
+  .chapter{border-top:1px solid var(--ink);padding:26px 0 64px}
+  .chapno{font-family:var(--sans);font-size:12px;letter-spacing:.4em;color:var(--faint);margin-bottom:10px}
+  h2{font-size:24px;font-weight:700;letter-spacing:.08em;margin-bottom:22px}
+  p.body{max-width:560px;color:#2E2921}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:720px}
+  ul.list{list-style:none}
+  ul.list li{border-bottom:1px solid var(--line);padding:8px 0;font-size:14px;color:#2E2921}
+  ul.list li:first-child{border-top:1px solid var(--line)}
+  .sched{width:100%;max-width:560px;border-collapse:collapse}
+  .sched td{border-bottom:1px solid var(--line);padding:9px 0;font-size:14px;vertical-align:top}
+  .sched .t{width:170px;font-weight:700}
+  .sched .m{font-family:var(--sans);font-size:12px;color:var(--faint);white-space:nowrap}
+
+  /* ---- 场次 ---- */
+  .sessions{max-width:560px}
+  .sessrow{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+           border-bottom:1px solid var(--line);padding:14px 0;flex-wrap:wrap}
+  .sessrow .date{font-size:16px;font-weight:700}
+  .sessrow .meta{font-family:var(--sans);font-size:12px;color:var(--soft)}
+  .sessrow .price{font-size:15px}
+  .sessrow a.go{font-family:var(--sans);font-size:13px;border:1px solid var(--ink);padding:10px 22px;min-height:44px;
+                display:inline-flex;align-items:center;color:var(--ink)}
+  .sessrow a.go:hover{background:var(--ink);color:var(--paper)}
+  .sessrow .off{font-family:var(--sans);font-size:13px;color:var(--faint);border:1px solid var(--line);
+                padding:10px 22px;min-height:44px;display:inline-flex;align-items:center}
+  .fineprint{font-size:14px;color:var(--soft);max-width:560px;margin-top:22px}
+
+  /* ---- 印 ---- */
+  .seal{position:sticky;top:24px;float:right;width:78px;height:78px;border:2px solid var(--cinnabar);
+        color:var(--cinnabar);display:flex;align-items:center;justify-content:center;font-size:19px;
+        letter-spacing:.14em;font-weight:700;writing-mode:vertical-rl}
+  .seal:hover{background:var(--cinnabar);color:var(--paper)}
+
+  footer{border-top:1px solid var(--ink);margin-top:10px;padding:26px 0 70px;font-family:var(--sans);
+         font-size:12px;color:var(--faint)}
+  footer .links{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:12px}
+  footer a{color:var(--soft)}
+
+  @media (max-width:860px){
+    body{font-size:16px}
+    .marginalia{grid-template-columns:1fr;gap:0}
+    .spine{display:none}
+    .twocol{grid-template-columns:1fr;gap:10px}
+    .seal{position:static;float:none;margin:20px 0 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marginalia">
+    <div class="head">上海 · 静安 · 零基础形意拳体验课</div>
+  </div>
+</header>
+
+<div class="titlepage">
+  <div class="marginalia">
+    <div>
+      <div class="brandline">
+        <span style="font-size:15px;font-weight:700;letter-spacing:.1em">形意拳体验</span>
+        <nav class="nav"><a href="#sessions">场次</a><a href="#venue">场地</a><a href="#">查询预约</a><a href="#">English</a></nav>
+      </div>
+      <h1>零基础<br>形意拳体验课</h1>
+      <div class="rule"></div>
+      <p class="lede">九十分钟：站桩、五行拳基础动作与呼吸配合。形意拳是中国传统内家拳之一，动作朴实、招式简练，讲究「心意诚于中，肢体形于外」。无需任何武术基础，穿运动服即可参加。</p>
+      <div class="fig">
+        <svg width="120" height="150" viewBox="0 0 120 150" fill="none" stroke="#1F1B16" stroke-width="1.4" stroke-linecap="round">
+          <circle cx="62" cy="16" r="9"/>
+          <path d="M60 25 L56 76"/>
+          <path d="M38 45 L57 39 L82 50"/>
+          <path d="M56 76 L36 108"/><path d="M56 76 L86 102"/>
+          <path d="M36 108 L26 128"/><path d="M86 102 L98 126"/>
+          <path d="M56 80 L56 132" stroke-dasharray="3 5" stroke-width="1" opacity=".7"/>
+          <path d="M12 136 L108 136" stroke-width="1"/>
+        </svg>
+        <div class="fig-cap">三体式 · 重心落于后腿七分</div>
+      </div>
+    </div>
+    <aside class="spine">
+      <b>旁注</b>
+      膝不过脚尖<br>
+      呼吸随动作沉浮<br>
+      全程强度可控<br>
+      久坐人群可跟上<br>
+      <b style="margin-top:14px">课程</b>
+      九十分钟<br>
+      师生比 ≤ 1:6<br>
+      ¥168 起
+    </aside>
+  </div>
+</div>
+
+<section class="chapter">
+  <div class="marginalia">
+    <div>
+      <div class="chapno">第一章 · 课程</div>
+      <h2>这九十分钟练什么</h2>
+      <p class="body">本次体验课面向完全零基础的朋友，用九十分钟带你完成一次完整的入门训练。教练会逐一纠正动作，课程结束后你会带走一套可以在家练习的基础动作。</p>
+      <table class="sched" style="margin-top:18px">
+        <tr><td class="t">热身与关节活动</td><td>建立身体觉知</td><td class="m">一〇 分钟</td></tr>
+        <tr><td class="t">三体式站桩</td><td>建立基本结构与重心</td><td class="m">二〇 分钟</td></tr>
+        <tr><td class="t">五行拳基础</td><td>劈、崩、钻、炮、横的动作要领</td><td class="m">三五 分钟</td></tr>
+        <tr><td class="t">呼吸与发力配合</td><td>内外相合</td><td class="m">一五 分钟</td></tr>
+        <tr><td class="t">放松与答疑</td><td>收功</td><td class="m">一〇 分钟</td></tr>
+      </table>
+      <div class="twocol" style="margin-top:26px">
+        <div>
+          <div class="chapno" style="letter-spacing:.3em">适合谁来</div>
+          <ul class="list">
+            <li>完全零基础，从未接触过武术</li>
+            <li>久坐办公、希望改善体态与呼吸的人群</li>
+            <li>想了解内家拳但对高强度训练有顾虑的人</li>
+            <li>年龄 12–60 岁，无重大心脑血管疾病</li>
+          </ul>
+        </div>
+        <div>
+          <div class="chapno" style="letter-spacing:.3em">费用包含</div>
+          <ul class="list">
+            <li>专业教练全程指导（师生比不超过 1:6）</li>
+            <li>练功服与练功鞋试用、饮用水与毛巾</li>
+            <li>课后动作要点图文资料</li>
+            <li>不含：往返交通、餐食、私教与器械</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="venue">
+  <div class="marginalia">
+    <div>
+      <div class="chapno">第二章 · 场地</div>
+      <h2>静安武术体验空间</h2>
+      <p class="body">上海市静安区南京西路 1266 号 3 楼 302 室。</p>
+      <table class="sched" style="margin-top:14px">
+        <tr><td class="t">地铁</td><td>2 / 12 / 13 号线南京西路站 1 号口出，步行约 5 分钟</td></tr>
+        <tr><td class="t">到达</td><td>大楼 B1 有访客电梯直达 3 楼，前台登记后左手第二间教室</td></tr>
+      </table>
+      <p class="fineprint" style="margin-top:18px;border-left:2px solid var(--line);padding-left:14px">
+        照片位 —— 此处交付时替换为场地实景照片。书页留白即画面。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="sessions" style="padding-bottom:26px">
+  <div class="marginalia">
+    <div>
+      <div class="chapno">第三章 · 场次</div>
+      <h2>选一场，来站一次桩</h2>
+      <div class="sessions">
+        <div class="sessrow"><span class="date">十一月一日 · 周六</span><span class="meta">一〇:〇〇 – 一一:三〇 · 余 7 位</span><span class="price">¥168</span><a class="go" href="#">选择</a></div>
+        <div class="sessrow"><span class="date">十一月八日 · 周六</span><span class="meta">一〇:〇〇 – 一一:三〇 · 12 位</span><span class="price">¥168</span><a class="go" href="#">选择</a></div>
+        <div class="sessrow"><span class="date">十一月十五日 · 周六</span><span class="meta">一九:〇〇 – 二〇:三〇 · 余 5 位</span><span class="price">¥188</span><a class="go" href="#">选择</a></div>
+        <div class="sessrow"><span class="date">十一月二十二日 · 周六</span><span class="meta">一〇:〇〇 – 一一:三〇 · 满员</span><span class="price">¥168</span><span class="off">停售</span></div>
+      </div>
+      <p class="fineprint">退改：开课前 24 小时（含）以上取消全额退款；24 小时以内不退款，可自行转让名额。若因场馆或教练原因取消课程，全额退款并另行邮件通知。以上时间均以北京时间（UTC+8）为准。下单只要一个邮箱，确认信直接进收件箱。</p>
+    </div>
+    <a class="seal" href="#sessions">报名</a>
+  </div>
+</section>
+
+<footer>
+  <div class="marginalia" style="display:block">
+    <div class="links"><a href="#sessions">选择场次</a><a href="#">查询我的预约</a><a href="#">English</a><a href="#">管理后台</a></div>
+    <div>形意拳体验 · 上海 — 演示数据，仅用于流程验收</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -30,3 +30,6 @@ scripts/ops/*.log
 # 部署产物与线上环境变量（含密钥，禁止入库）
 *.tar.gz
 scripts/ops/.env.production
+
+# 设计稿截图（体积大，不进仓库；HTML 源文件保留）
+design-demos/*.png

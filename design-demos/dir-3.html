@@ -1,0 +1,255 @@
+<!doctype html>
+<!--
+  方向 3 · On（on-running.com，瑞士精密）
+  借的：极端字号反差（巨标题 vs 12px 标签）；全幅 hero 压白字；
+        等宽字只用在按钮 / 时间 / 价格三处；hero 巨幅留白；正文区回到结构化栅格；
+        摄影显示真实运动而非摆拍（此处以程序化三体式结构图占位，交付换真图）。
+  form 来自内容：「教练会逐一纠正动作」——真实、动态、在发生。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>上海零基础形意拳体验课</title>
+<style>
+  :root{
+    --ink:#0A0A0A; --paper:#fff; --blue:#0057D8; --grey:#6E6E6E; --line:#E6E6E6;
+    --sans:"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    --mono:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;
+       -webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+  /* ---- nav ---- */
+  nav{position:absolute;left:0;right:0;top:0;z-index:5}
+  nav .wrap{display:flex;justify-content:space-between;align-items:center;height:72px;color:#fff}
+  .brand{font-size:16px;font-weight:800;letter-spacing:.02em}
+  .brand small{display:block;font-size:11px;font-weight:400;opacity:.75;letter-spacing:.1em}
+  nav .r{display:flex;gap:26px;font-size:13px}
+  nav .r a{opacity:.9}
+  nav .r a:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
+
+  /* ---- hero ---- */
+  .hero{position:relative;min-height:88vh;display:flex;align-items:flex-end;color:#fff;overflow:hidden;
+        background:linear-gradient(180deg,#14161b 0%,#0c0e12 60%,#08090c 100%)}
+  .hero::before{content:"";position:absolute;inset:0;
+        background:repeating-linear-gradient(115deg,rgba(255,255,255,.045) 0 1px,transparent 1px 22px)}
+  .hero .wrap{position:relative;width:100%;padding-bottom:64px}
+  .kicker{font-family:var(--mono);font-size:14px;letter-spacing:.34em;color:rgba(255,255,255,.72)}
+  h1{font-size:clamp(56px,9vw,124px);font-weight:800;line-height:.98;letter-spacing:-.025em;margin-top:14px}
+  h1 span{display:block}
+  h1 .cn{font-weight:800;letter-spacing:-.01em}
+  .hero .fig{position:absolute;right:6%;top:50%;transform:translateY(-54%);opacity:.5;pointer-events:none}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px 34px;margin-top:26px;font-family:var(--mono);font-size:14px;
+             color:rgba(255,255,255,.85)}
+  .hero-meta b{color:#fff;font-weight:600}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 30px;
+       background:var(--blue);color:#fff;font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:.02em;
+       border:0;cursor:pointer;margin-top:30px}
+  .btn:hover{background:#0047AE}
+  .hero .ghost{display:inline-flex;align-items:center;min-height:50px;padding:0 22px;border:1px solid rgba(255,255,255,.4);
+       color:#fff;font-family:var(--mono);font-size:14px;margin-top:30px}
+  .hero .ghost:hover{border-color:#fff}
+
+  /* ---- strip ---- */
+  .strip{border-bottom:1px solid var(--line)}
+  .strip .wrap{display:flex;flex-wrap:wrap}
+  .strip div{flex:1 1 200px;padding:22px 24px 22px 0;border-right:1px solid var(--line)}
+  .strip div:last-child{border-right:0}
+  .strip b{display:block;font-family:var(--mono);font-size:20px;font-weight:600}
+  .strip span{font-size:12px;color:var(--grey);letter-spacing:.08em}
+
+  /* ---- sections ---- */
+  section{padding:72px 0;border-bottom:1px solid var(--line)}
+  .sec-kicker{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--grey);margin-bottom:12px}
+  h2{font-size:clamp(30px,4.4vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.08;margin-bottom:26px}
+  .cols{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+  p.body{font-size:16px;line-height:1.9;color:#2b2b2b;max-width:58ch}
+  .flow{width:100%;border-collapse:collapse;margin-top:8px}
+  .flow td{border-top:1px solid var(--line);padding:13px 0;font-size:15px}
+  .flow tr:first-child td{border-top:0}
+  .flow .n{font-family:var(--mono);font-size:12px;color:var(--grey);width:56px}
+  .flow .t{font-weight:700;width:190px}
+  .flow .m{font-family:var(--mono);font-size:13px;color:var(--grey);text-align:right;white-space:nowrap}
+  .list{list-style:none;margin-top:8px}
+  .list li{border-top:1px solid var(--line);padding:10px 0;font-size:15px;color:#2b2b2b;display:flex;gap:12px}
+  .list li:first-child{border-top:0}
+  .list li b{font-weight:700}
+  .list .x{color:#767676}
+
+  /* ---- venue ---- */
+  .venue{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .venue h3{font-size:22px;font-weight:800;margin-bottom:8px}
+  .addr{font-size:15px;color:var(--grey);margin-bottom:18px}
+  .ph{background:linear-gradient(160deg,#f1f1f1,#e7e7e7);border:1px solid var(--line);min-height:300px;
+      display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#6b6b6b}
+  .ph b{font-family:var(--mono);font-size:13px;letter-spacing:.26em;font-weight:500}
+  .ph span{font-size:12px}
+
+  /* ---- sessions ---- */
+  .sess{border-top:2px solid var(--ink);margin-top:6px}
+  .row{display:flex;align-items:center;gap:22px;padding:20px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .row .date{font-weight:800;font-size:18px;width:170px}
+  .row .time{font-family:var(--mono);font-size:14px;color:#444;width:140px}
+  .row .seat{font-size:14px;width:100px}
+  .row .seat.low{color:var(--blue);font-weight:700}
+  .row .price{font-family:var(--mono);font-size:16px;font-weight:600;width:90px}
+  .row a.go{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-height:48px;
+            padding:0 26px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:13px;letter-spacing:.04em}
+  .row a.go:hover{background:var(--blue)}
+  .row .off{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-height:48px;
+            padding:0 26px;border:1px solid var(--line);color:#767676;font-family:var(--mono);font-size:14px}
+  .fineprint{font-size:14px;color:var(--grey);margin-top:18px;max-width:70ch}
+
+  footer{padding:36px 0 64px;font-size:14px;color:var(--grey)}
+  footer .links{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:14px}
+  footer a{color:var(--ink)}
+  footer a:hover{color:var(--blue)}
+
+  @media (max-width:760px){
+    body{font-size:16px}
+    .wrap{padding:0 18px}
+    .cols,.venue{grid-template-columns:1fr;gap:26px}
+    .hero .fig{opacity:.22;right:-12%;top:36%}
+    .strip div{flex:1 1 44%}
+    .row .date,.row .time,.row .seat,.row .price{width:auto;flex:1 1 auto}
+    .row a.go,.row .off{margin-left:0;flex:1 1 100%}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">形意拳体验<small>SHANGHAI</small></div>
+    <div class="r"><a href="#sessions">选择场次</a><a href="#venue">场地</a><a href="#">查询预约</a><a href="#">English</a></div>
+  </div>
+</nav>
+
+<div class="hero">
+  <svg class="fig" width="360" height="420" viewBox="0 0 400 420" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+    <!-- 三体式 · 侧视 -->
+    <circle cx="212" cy="66" r="21"/>
+    <path d="M206 87 L192 208"/>
+    <path d="M206 104 L266 122 L332 104"/>
+    <path d="M204 108 L152 152 L124 192"/>
+    <path d="M192 208 L252 282 L252 362"/>
+    <path d="M192 208 L122 292 L62 356"/>
+    <path d="M20 364 L380 364" stroke-width="1"/>
+    <path d="M252 90 L252 360" stroke-dasharray="4 8" stroke-width="1" opacity=".6"/>
+    <text x="262" y="120" fill="#fff" opacity=".7" font-size="12" font-family="monospace">膝不过脚尖</text>
+    <text x="70" y="345" fill="#fff" opacity=".7" font-size="12" font-family="monospace">重心在后七</text>
+  </svg>
+  <div class="wrap">
+    <div class="kicker">XINGYIQUAN TASTER · SHANGHAI · 90 MIN</div>
+    <h1><span class="cn">九十分钟，</span><span>入门形意拳。</span></h1>
+    <div class="hero-meta">
+      <span><b>¥168</b> 起 / 人</span>
+      <span>零基础</span>
+      <span>中文 / English</span>
+      <span>静安 · 南京西路</span>
+    </div>
+    <a class="btn" href="#sessions">选择场次</a>
+    <a class="ghost" href="#class">先看课程</a>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="wrap">
+    <div><b>90'</b><span>单次课程时长</span></div>
+    <div><b>1:6</b><span>师生比 · 逐一纠正</span></div>
+    <div><b>12–60</b><span>适用年龄</span></div>
+    <div><b>5 MIN</b><span>地铁口步行至场地</span></div>
+  </div>
+</div>
+
+<section id="class">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="sec-kicker">THE CLASS</div>
+        <h2>一次完整的<br>入门训练</h2>
+        <p class="body">形意拳是中国传统内家拳之一，动作朴实、招式简练，讲究「心意诚于中，肢体形于外」。本次体验课面向完全零基础的朋友：教练会逐一纠正动作，全程强度可控，久坐办公人群也能轻松跟上。课程结束后你会带走一套可以在家练习的基础动作。</p>
+      </div>
+      <div>
+        <table class="flow">
+          <tr><td class="n">01</td><td class="t">热身与关节活动</td><td class="m">10 MIN</td></tr>
+          <tr><td class="n">02</td><td class="t">三体式站桩</td><td class="m">20 MIN</td></tr>
+          <tr><td class="n">03</td><td class="t">五行拳：劈 崩 钻 炮 横</td><td class="m">35 MIN</td></tr>
+          <tr><td class="n">04</td><td class="t">呼吸与发力配合</td><td class="m">15 MIN</td></tr>
+          <tr><td class="n">05</td><td class="t">放松与答疑</td><td class="m">10 MIN</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="sec-kicker">WHO IT'S FOR</div>
+        <h2>适合谁来</h2>
+        <ul class="list">
+          <li>· 完全零基础，从未接触过武术</li>
+          <li>· 久坐办公、希望改善体态与呼吸的人群</li>
+          <li>· 想了解内家拳但对高强度训练有顾虑的人</li>
+          <li>· 年龄 12–60 岁，无重大心脑血管疾病</li>
+        </ul>
+      </div>
+      <div>
+        <div class="sec-kicker">INCLUDED / NOT</div>
+        <h2>费用怎么算</h2>
+        <ul class="list">
+          <li><b>含</b>教练全程指导（≤1:6）、练功服与鞋试用、饮用水与毛巾、课后图文资料</li>
+          <li class="x"><b>不含</b>往返交通、餐食饮品、一对一私教、器械购买</li>
+        </ul>
+        <p class="fineprint">退改：开课前 24 小时（含）以上取消全额退款；24 小时以内不退款，可自行转让名额。因场馆或教练原因取消则全额退款并邮件通知。时间均以北京时间（UTC+8）为准。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="venue">
+  <div class="wrap">
+    <div class="venue">
+      <div>
+        <div class="sec-kicker">VENUE</div>
+        <h3>静安武术体验空间</h3>
+        <p class="addr">上海市静安区南京西路 1266 号 3 楼 302 室</p>
+        <table class="flow">
+          <tr><td class="t">地铁</td><td>2 / 12 / 13 号线南京西路站 1 号口出，步行约 5 分钟</td></tr>
+          <tr><td class="t">到达</td><td>大楼 B1 访客电梯直达 3 楼，前台登记后左手第二间教室</td></tr>
+        </table>
+      </div>
+      <div class="ph"><b>照片位</b><span>场地实景 · 交付时替换为真实照片</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="sessions" style="border-bottom:0">
+  <div class="wrap">
+    <div class="sec-kicker">SESSIONS</div>
+    <h2>选一场</h2>
+    <div class="sess">
+      <div class="row"><span class="date">11 月 1 日 · 周六</span><span class="time">10:00 – 11:30</span><span class="seat low">余 7 位</span><span class="price">¥168</span><a class="go" href="#">选择</a></div>
+      <div class="row"><span class="date">11 月 8 日 · 周六</span><span class="time">10:00 – 11:30</span><span class="seat">12 位</span><span class="price">¥168</span><a class="go" href="#">选择</a></div>
+      <div class="row"><span class="date">11 月 15 日 · 周六</span><span class="time">19:00 – 20:30</span><span class="seat low">余 5 位</span><span class="price">¥188</span><a class="go" href="#">选择</a></div>
+      <div class="row"><span class="date">11 月 22 日 · 周六</span><span class="time">10:00 – 11:30</span><span class="seat">满员</span><span class="price">¥168</span><span class="off">停售</span></div>
+    </div>
+    <p class="fineprint">下单只要一个邮箱，确认信直接进收件箱 · 支持微信支付 / Stripe / PayPal</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="links"><a href="#sessions">选择场次</a><a href="#">查询我的预约</a><a href="#">English</a><a href="#">管理后台</a></div>
+    <div>形意拳体验 · 上海 — 本页为演示数据，仅用于流程验收</div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -12,6 +12,7 @@ import {
 } from "@/db/schema";
 import type { Locale } from "@/i18n/messages";
 import { siteUrl } from "./config";
+import { buildMapUrl } from "./map";
 import { contactEmail, holdMinutes } from "./settings";
 import { sendEmail } from "./email";
 import type { BookingMailData } from "./mail-templates";
@@ -569,7 +570,8 @@ export async function buildBookingMailData(
     currency: booking.currency,
     venueName: vt?.name ?? "",
     venueAddress: vt?.addressLine ?? "",
-    mapUrl: venue?.mapUrl ?? "",
+    // 有经纬度 → 高德定位链接；否则回退 mapUrl
+    mapUrl: buildMapUrl(venue, vt?.name || undefined),
     directions: vt?.directions ?? "",
     taughtLanguages: (course?.taughtLanguages as string[]) ?? [],
     contactEmail: await contactEmail(),

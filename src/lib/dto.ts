@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { classSessions, courseTranslations, courses, venueTranslations, venues } from "@/db/schema";
 import { seatsLeft } from "./booking";
+import { buildMapUrl } from "./map";
 
 export type TranslationDTO = { locale: string } & Record<string, string>;
 
@@ -29,16 +30,20 @@ export type CourseDTO = {
   taughtLanguages: string[];
   imageUrl: string | null;
   translations: TranslationDTO[];
-  venues: { mapUrl: string; translations: TranslationDTO[] }[];
+  venues: { mapUrl: string; lng: number | null; lat: number | null; translations: TranslationDTO[] }[];
 };
 
 async function loadVenue(venueId: string | null) {
-  if (!venueId) return { mapUrl: "", translations: [] as TranslationDTO[] };
+  if (!venueId) return { mapUrl: "", lng: null, lat: null, translations: [] as TranslationDTO[] };
   const db = await getDb();
   const v = (await db.select().from(venues).where(eq(venues.id, venueId)).limit(1))[0];
   const tr = await db.select().from(venueTranslations).where(eq(venueTranslations.venueId, venueId));
+  const name = tr.find((t) => t.locale === "zh")?.name || tr[0]?.name || "";
   return {
-    mapUrl: v?.mapUrl ?? "",
+    // 有经纬度 → 生成高德定位链接；否则回退到后台填写的 mapUrl
+    mapUrl: buildMapUrl(v, name),
+    lng: v?.lng ?? null,
+    lat: v?.lat ?? null,
     translations: tr.map((t) => ({
       locale: t.locale,
       name: t.name,

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -138,7 +139,11 @@ export const courseTranslations = pgTable(
 
 export const venues = pgTable("venues", {
   id: uuid("id").primaryKey().defaultRandom(),
-  mapUrl: text("map_url").notNull().default(""),
+  mapUrl: text("map_url").notNull().default(""), // 手工覆盖链接；留空则按经纬度生成高德链接
+  /** 经度（高德 GCJ-02 坐标系），用于生成高德地图定位/标注链接 */
+  lng: doublePrecision("lng"),
+  /** 纬度（高德 GCJ-02 坐标系） */
+  lat: doublePrecision("lat"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

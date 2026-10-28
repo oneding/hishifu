@@ -12,6 +12,8 @@ export interface CourseFormInitial {
   taughtLanguages: string;
   venueId: string;
   mapUrl: string;
+  lng: string;
+  lat: string;
   zh: Record<string, string>;
   en: Record<string, string>;
 }
@@ -87,9 +89,28 @@ export function CourseForm({ data }: { data: CourseFormInitial }) {
 
         <div className="card space-y-3 p-4">
           <h2 className="text-[15px] font-bold">{t("场地", "Venue")}</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="label">{t("经度（高德 GCJ-02）", "Longitude (Amap GCJ-02)")}</label>
+              <input className="field" name="lng" defaultValue={data.lng} placeholder="121.4453" inputMode="decimal" />
+            </div>
+            <div>
+              <label className="label">{t("纬度（高德 GCJ-02）", "Latitude (Amap GCJ-02)")}</label>
+              <input className="field" name="lat" defaultValue={data.lat} placeholder="31.2304" inputMode="decimal" />
+            </div>
+          </div>
+          <p className="-mt-1 text-[11px] text-muted">
+            {t(
+              "填经纬度后，「查看地图」会跳到高德地图该位置（未安装 App 时打开网页版）。坐标请在高德地图拾取器取 GCJ-02 值，不要用 GPS/WGS-84 原值。",
+              "With coordinates set, \"View map\" opens this location in Amap (web version if the app is not installed). Pick GCJ-02 values from Amap\u2019s coordinate picker \u2014 raw GPS/WGS-84 values will be offset.",
+            )}
+          </p>
           <div>
-            <label className="label">{t("地图链接", "Map URL")}</label>
+            <label className="label">{t("地图链接（覆盖，选填）", "Map URL (override, optional)")}</label>
             <input className="field" name="mapUrl" defaultValue={data.mapUrl} placeholder="https://…" />
+            <p className="mt-1 text-[11px] text-muted">
+              {t("留空即使用上面的经纬度生成高德链接；填了则以这里为准。", "Leave empty to use the Amap link built from the coordinates above; if set, this URL wins.")}
+            </p>
           </div>
           {(["zh", "en"] as const).map((l) => (
             <div key={l} className="grid gap-3 sm:grid-cols-3">

@@ -38,6 +38,14 @@ function str(fd: FormData, key: string) {
   return String(fd.get(key) ?? "").trim();
 }
 
+/** 可选的数值字段：空或非法 → null */
+function optNum(fd: FormData, key: string): number | null {
+  const raw = str(fd, key);
+  if (!raw) return null;
+  const n = Number.parseFloat(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
 async function clientIp() {
   const { headers } = await import("next/headers");
   const h = await headers();
@@ -260,7 +268,15 @@ export async function saveCourseAction(_prev: ActionState, fd: FormData): Promis
   // 场地
   const venueId = str(fd, "venueId");
   if (venueId) {
-    await db.update(venues).set({ mapUrl: str(fd, "mapUrl"), updatedAt: new Date() }).where(eq(venues.id, venueId));
+    await db
+      .update(venues)
+      .set({
+        mapUrl: str(fd, "mapUrl"),
+        lng: optNum(fd, "lng"),
+        lat: optNum(fd, "lat"),
+        updatedAt: new Date(),
+      })
+      .where(eq(venues.id, venueId));
     for (const locale of ["zh", "en"] as const) {
       const values = {
         name: str(fd, `${locale}_venueName`),

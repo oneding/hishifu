@@ -140,6 +140,9 @@ The coach corrects each participant individually and the intensity stays managea
   }
 
   /* ---------------- 场地 ---------------- */
+  // 演示场地坐标：上海静安 南京西路（GCJ-02，与 directions 里的高德链接一致）
+  const VENUE_LNG = 121.4453;
+  const VENUE_LAT = 31.2304;
   let venue = (await db.select().from(venues).limit(1))[0];
   if (!venue) {
     venue = (
@@ -148,9 +151,18 @@ The coach corrects each participant individually and the intensity stays managea
         .values({
           mapUrl:
             "https://www.google.com/maps/search/?api=1&query=Jing%27an+Temple+Shanghai+West+Nanjing+Road",
+          lng: VENUE_LNG,
+          lat: VENUE_LAT,
         })
         .returning()
     )[0];
+  } else if (venue.lng == null || venue.lat == null) {
+    // 已存在但缺坐标（老库）：补上，「查看地图」才能跳高德
+    await db
+      .update(venues)
+      .set({ lng: venue.lng ?? VENUE_LNG, lat: venue.lat ?? VENUE_LAT, updatedAt: new Date() })
+      .where(eq(venues.id, venue.id));
+    venue = { ...venue, lng: venue.lng ?? VENUE_LNG, lat: venue.lat ?? VENUE_LAT };
   }
 
   const vtrs = [
