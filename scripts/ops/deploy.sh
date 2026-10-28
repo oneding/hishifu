@@ -32,7 +32,12 @@ python scripts/ops/ssh_exec.py "cd /srv/xingyi-src && APP_COMMIT=$APP_COMMIT NEX
   | tail -5
 
 echo "▶ 5/5 部署并重启"
-python scripts/ops/ssh_exec.py --sudo "cp -a /srv/xingyi-src/.next/standalone/. /srv/xingyi/ && cp -a /srv/xingyi-src/.next/static /srv/xingyi/.next/static && chown -R ubuntu:ubuntu /srv/xingyi && systemctl restart xingyi"
+# ⚠️ 静态资源必须用 cp -aT：目标目录已存在时，`cp -a 源 目标` 会把源整个拷进目标里
+#    （.next/static/static/...），且旧文件不清除 → 页面引用的最新 CSS/JS 全部 404、页面无样式
+python scripts/ops/ssh_exec.py --sudo "cp -a /srv/xingyi-src/.next/standalone/. /srv/xingyi/ \
+  && rm -rf /srv/xingyi/.next/static \
+  && cp -aT /srv/xingyi-src/.next/static /srv/xingyi/.next/static \
+  && chown -R ubuntu:ubuntu /srv/xingyi && systemctl restart xingyi"
 python scripts/ops/ssh_exec.py --sudo "sleep 6; systemctl is-active xingyi && curl -s -o /dev/null -w 'HTTP=%{http_code}\n' --max-time 20 http://127.0.0.1:3000/zh"
 
 echo "✅ 部署完成"
